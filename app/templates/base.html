@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}BIM Reporter{% endblock %} | Kunhwa R&amp;D</title>
+  <meta name="description" content="건화기술연구소 BIM 이슈 보고서 자동화 시스템" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #1a56db;
+      --primary-dark: #1240ad;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --success: #16a34a;
+      --warning: #d97706;
+      --error: #dc2626;
+      --radius: 10px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      height: 60px;
+      position: sticky; top: 0; z-index: 50;
+      box-shadow: 0 1px 3px rgba(0,0,0,.06);
+    }
+    .logo { font-weight: 700; font-size: 1.1rem; color: var(--primary); letter-spacing: -.5px; }
+    .logo span { color: var(--text); }
+    nav a {
+      color: var(--text-muted); text-decoration: none;
+      margin-left: 1.5rem; font-size: .9rem;
+      transition: color .15s;
+    }
+    nav a:hover { color: var(--primary); }
+    .user-chip {
+      display: flex; align-items: center; gap: .5rem;
+      font-size: .875rem;
+    }
+    .user-chip img { width: 30px; height: 30px; border-radius: 50%; }
+    .btn-logout {
+      font-size: .8rem; color: var(--text-muted);
+      border: 1px solid var(--border); border-radius: 6px;
+      padding: .25rem .65rem; text-decoration: none;
+      transition: all .15s;
+    }
+    .btn-logout:hover { border-color: var(--error); color: var(--error); }
+    main { max-width: 900px; margin: 0 auto; padding: 2rem 1rem; }
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.75rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,.05);
+    }
+    .badge {
+      display: inline-block; padding: .2rem .6rem;
+      border-radius: 999px; font-size: .75rem; font-weight: 500;
+    }
+    .badge-pending  { background: #fef3c7; color: #b45309; }
+    .badge-done     { background: #dcfce7; color: #16a34a; }
+    .badge-error    { background: #fee2e2; color: #dc2626; }
+  </style>
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <header>
+    <span class="logo">BIM<span>Reporter</span></span>
+    <nav>
+      <a href="/">보고서 생성</a>
+      <a href="/reports/history">생성 이력</a>
+    </nav>
+    {% if user %}
+    <div class="user-chip">
+      {% if user.picture %}<img src="{{ user.picture }}" alt="avatar" />{% endif %}
+      <span>{{ user.name or user.email }}</span>
+      <a class="btn-logout" href="/auth/logout">로그아웃</a>
+    </div>
+    {% else %}
+    <a href="/auth/login" style="color:var(--primary);font-size:.9rem;">Google 로그인</a>
+    {% endif %}
+  </header>
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

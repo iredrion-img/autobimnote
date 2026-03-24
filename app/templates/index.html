@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% block title %}보고서 생성{% endblock %}
+{% block head %}
+<style>
+  .form-card { max-width: 720px; margin: 2rem auto; }
+  h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: .25rem; }
+  .subtitle { color: var(--text-muted); font-size: .9rem; margin-bottom: 1.75rem; }
+  .dev-badge {
+    display: inline-block; background: #fef3c7; color: #92400e;
+    border: 1px solid #fde68a; border-radius: 6px;
+    font-size: .78rem; font-weight: 600; padding: .2rem .65rem;
+    margin-bottom: 1rem;
+  }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .form-group { margin-bottom: 1.25rem; }
+  label { display: block; font-size: .85rem; font-weight: 500; margin-bottom: .4rem; }
+  label .req { color: var(--error); margin-left: 2px; }
+  input[type=text], textarea {
+    width: 100%; padding: .65rem .85rem;
+    border: 1px solid var(--border); border-radius: 8px;
+    font-family: inherit; font-size: .9rem; resize: vertical;
+    transition: border-color .15s, box-shadow .15s;
+    background: var(--surface);
+  }
+  input[type=text]:focus, textarea:focus {
+    outline: none; border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(26,86,219,.12);
+  }
+  .img-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .img-slot { border: 2px dashed var(--border); border-radius: 8px; padding: 1.25rem; text-align: center; cursor: pointer; transition: border-color .15s, background .15s; }
+  .img-slot:hover { border-color: var(--primary); background: #f0f5ff; }
+  .img-slot svg { display: block; margin: 0 auto .4rem; }
+  .img-slot p { color: var(--text-muted); font-size: .78rem; }
+  .img-slot .chip { background: #e0eaff; color: var(--primary); border-radius: 6px; padding: .15rem .5rem; font-size: .78rem; margin-top: .35rem; display: inline-block; }
+  .btn-submit {
+    width: 100%; padding: .85rem;
+    background: var(--primary); color: #fff;
+    border: none; border-radius: 8px; font-size: 1rem;
+    font-family: inherit; font-weight: 600; cursor: pointer;
+    transition: background .15s, transform .1s; margin-top: .5rem;
+  }
+  .btn-submit:hover { background: var(--primary-dark); }
+  .btn-submit:active { transform: scale(.98); }
+  .btn-submit:disabled { opacity: .6; cursor: not-allowed; }
+  .toast {
+    position: fixed; bottom: 1.5rem; right: 1.5rem;
+    background: #1e293b; color: #fff; border-radius: 10px;
+    padding: .85rem 1.25rem; font-size: .875rem;
+    box-shadow: 0 8px 24px rgba(0,0,0,.2);
+    display: none; animation: fadeIn .25s ease; max-width: 380px;
+  }
+  @keyframes fadeIn { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: none;} }
+  .login-card { text-align: center; padding: 3rem 0; }
+  .login-card p { color: var(--text-muted); margin-bottom: 1rem; }
+  .btn-login {
+    display: inline-flex; align-items: center; gap: .5rem;
+    background: var(--primary); color: #fff;
+    padding: .75rem 1.5rem; border-radius: 8px;
+    text-decoration: none; font-weight: 600; font-size: .95rem;
+    transition: background .15s;
+  }
+  .btn-login:hover { background: var(--primary-dark); }
+</style>
+{% endblock %}
+{% block content %}
+{% if not user %}
+<div class="card login-card">
+  <h1 style="margin-bottom:.75rem;">BIM 이슈 보고서 자동화</h1>
+  <p>Google 계정으로 로그인하여 보고서를 생성하세요.</p>
+  <a class="btn-login" href="/auth/login">
+    <svg width="18" height="18" viewBox="0 0 48 48" fill="none">
+      <path fill="#4285F4" d="M47.53 24.56c0-1.61-.15-3.16-.42-4.65H24v8.8h13.18c-.57 3-2.27 5.54-4.84 7.25v6.02h7.84c4.58-4.22 7.35-10.44 7.35-17.42z"/>
+      <path fill="#34A853" d="M24 48c6.48 0 11.92-2.15 15.89-5.82l-7.84-6.02c-2.16 1.45-4.93 2.3-8.05 2.3-6.19 0-11.43-4.18-13.3-9.8H2.58v6.21C6.53 42.68 14.73 48 24 48z"/>
+      <path fill="#FBBC05" d="M10.7 28.66A14.77 14.77 0 0 1 9.89 24c0-1.63.28-3.21.81-4.66v-6.21H2.58A23.99 23.99 0 0 0 0 24c0 3.87.93 7.53 2.58 10.87l8.12-6.21z"/>
+      <path fill="#EA4335" d="M24 9.54c3.49 0 6.62 1.2 9.08 3.56l6.8-6.8C35.91 2.38 30.47 0 24 0 14.73 0 6.53 5.32 2.58 13.13l8.12 6.21C12.57 13.72 17.81 9.54 24 9.54z"/>
+    </svg>
+    Google로 시작하기
+  </a>
+</div>
+{% else %}
+<div class="card form-card">
+  {% if user.name == "개발자 (Dev Bypass)" %}
+  <div class="dev-badge">🛠 DEV MODE — OAuth 바이패스 활성 ({{ user.email }})</div>
+  {% endif %}
+  <h1>BIM 이슈 보고서 생성</h1>
+  <p class="subtitle">이슈 정보와 현장 사진을 입력하면 HWPX 보고서가 자동으로 생성됩니다.</p>
+
+  <form id="reportForm">
+    <div class="form-row">
+      <div class="form-group">
+        <label for="structure_name">구조물명 <span class="req">*</span></label>
+        <input id="structure_name" name="structure_name" type="text"
+               placeholder="예: OO대교 취수탑 배관" required />
+      </div>
+      <div class="form-group">
+        <label for="discipline">검토 분야 <span class="req">*</span></label>
+        <input id="discipline" name="discipline" type="text"
+               placeholder="예: 기계/배관, 구조, 건축" required />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="issue_description">이슈 내용 <span class="req">*</span></label>
+      <textarea id="issue_description" name="issue_description" rows="5"
+                placeholder="이슈를 구체적으로 기술하세요. (줄바꿈 지원)" required></textarea>
+    </div>
+
+    <div class="img-grid">
+      <div class="form-group">
+        <label for="img_1_title">좌측 이미지 제목 <span class="req">*</span></label>
+        <input id="img_1_title" name="img_1_title" type="text"
+               placeholder="예: 설계 도면 (평면)" required />
+        <div class="img-slot" style="margin-top:.5rem" onclick="document.getElementById('image1').click()">
+          <svg width="28" height="28" fill="none" stroke="#94a3b8" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          <p>좌측 이미지 (image1)</p>
+          <span class="chip" id="chip1">클릭하여 선택</span>
+        </div>
+        <input id="image1" name="image1" type="file" accept="image/*" style="display:none" />
+      </div>
+
+      <div class="form-group">
+        <label for="img_2_title">우측 이미지 제목 <span class="req">*</span></label>
+        <input id="img_2_title" name="img_2_title" type="text"
+               placeholder="예: BIM 모델 검토 뷰" required />
+        <div class="img-slot" style="margin-top:.5rem" onclick="document.getElementById('image2').click()">
+          <svg width="28" height="28" fill="none" stroke="#94a3b8" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          <p>우측 이미지 (image2)</p>
+          <span class="chip" id="chip2">클릭하여 선택</span>
+        </div>
+        <input id="image2" name="image2" type="file" accept="image/*" style="display:none" />
+      </div>
+    </div>
+
+    <button type="submit" class="btn-submit" id="submitBtn">⚡ 보고서 생성 시작</button>
+  </form>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  function showToast(msg, ms=4000) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.style.display = 'block';
+    setTimeout(() => t.style.display = 'none', ms);
+  }
+
+  ['image1','image2'].forEach((id, i) => {
+    document.getElementById(id).addEventListener('change', function() {
+      const chip = document.getElementById('chip' + (i+1));
+      chip.textContent = this.files[0] ? this.files[0].name : '클릭하여 선택';
+    });
+  });
+
+  document.getElementById('reportForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true; btn.textContent = '생성 중…';
+
+    const fd = new FormData(e.target);
+    const img1 = document.getElementById('image1').files[0];
+    const img2 = document.getElementById('image2').files[0];
+    if (img1) fd.set('image1', img1);
+    if (img2) fd.set('image2', img2);
+
+    try {
+      const res = await fetch('/report/generate', { method: 'POST', body: fd });
+      if (res.status === 202) {
+        const data = await res.json();
+        showToast('✅ 보고서 생성이 시작되었습니다! ID: ' + data.id + '\n생성 이력에서 상태를 확인하세요.');
+        e.target.reset();
+        document.getElementById('chip1').textContent = '클릭하여 선택';
+        document.getElementById('chip2').textContent = '클릭하여 선택';
+      } else {
+        const err = await res.json().catch(() => ({}));
+        showToast('❌ 오류: ' + (err.detail || res.statusText));
+      }
+    } catch (ex) {
+      showToast('❌ 서버 연결 실패: ' + ex.message);
+    } finally {
+      btn.disabled = false; btn.textContent = '⚡ 보고서 생성 시작';
+    }
+  });
+</script>
+{% endif %}
+{% endblock %}

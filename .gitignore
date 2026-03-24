@@ -1,0 +1,53 @@
+# ─── Python ────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# ─── Virtual Environment ──────────────────────────────────────
+venv/
+.venv/
+env/
+
+# ─── IDE / Editor ─────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ─── OS ───────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ─── Environment Variables (보안) ──────────────────────────────
+.env
+
+# ─── Database (로컬 개발용) ────────────────────────────────────
+*.db
+*.sqlite3
+
+# ─── Output / 생성 파일 ───────────────────────────────────────
+output/
+/tmp/
+
+# ─── 임시 스크립트 및 추출 파일 ────────────────────────────────
+__extracted/
+__extracted_1/
+__extract_zip.py
+__apply_zip1.py
+__read_zip1.py
+__fetch_500.py
+__testclient.py
+__err.txt
+__copy_skills.py
+*.zip
+
+# ─── HWPX 템플릿 (바이너리 — 별도 관리 또는 LFS) ──────────────
+# 템플릿은 팀원이 각자 로컬에 배치하거나 GCS에서 다운로드
+# templates_hwpx/template.hwpx
